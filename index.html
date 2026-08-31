@@ -3,84 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Santiye Cephe Su Testi Takip</title>
+    <title>Cephe Su Testi Paftasi</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
-        body { background-color: #0b0f19; color: #f8fafc; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        header { background: #151d2a; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #233044; z-index: 20; }
-        .title { font-size: 15px; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
-        .stats { display: flex; gap: 8px; }
-        .stat-box { background: #0b0f19; padding: 4px 10px; border-radius: 6px; border: 1px solid #233044; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; }
-        .dot-passed { background-color: #22c55e; }
-        .dot-failed { background-color: #ef4444; }
-        .dot-pending { background-color: #f59e0b; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; user-select: none; }
+        body { background-color: #0b0f19; color: #fff; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { background: #151d2a; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #233044; }
+        .tabs { display: flex; gap: 4px; background: #0f172a; padding: 4px; border-radius: 8px; }
+        .tab-btn { background: transparent; border: none; color: #94a3b8; padding: 6px 10px; font-size: 11px; font-weight: 600; border-radius: 6px; cursor: pointer; }
+        .tab-btn.active { background: #0284c7; color: white; }
         
         .main { flex: 1; position: relative; width: 100%; height: 100%; overflow: hidden; }
         canvas { width: 100%; height: 100%; display: block; background: #020617; touch-action: none; }
         
-        .toolbar { position: absolute; top: 12px; left: 12px; z-index: 10; display: flex; gap: 8px; }
-        .btn { background: #1e293b; border: 1px solid #334155; color: #f8fafc; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
-        .btn:active { background: #334155; transform: scale(0.97); }
+        .toolbar { position: absolute; top: 12px; left: 12px; z-index: 10; display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn { background: #1e293b; border: 1px solid #334155; color: white; padding: 8px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .btn-primary { background: #0284c7; border-color: #0369a1; }
         
         .controls { position: absolute; bottom: 16px; right: 16px; z-index: 10; display: flex; flex-direction: column; gap: 6px; }
-        .btn-ctrl { width: 42px; height: 42px; background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(4px); border: 1px solid #334155; color: white; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
-        .btn-ctrl:active { background: #38bdf8; color: #000; }
-        
+        .btn-ctrl { width: 42px; height: 42px; background: rgba(30, 41, 59, 0.9); border: 1px solid #334155; color: white; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
         input[type="file"] { display: none; }
-        
-        .toast { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.9); border: 1px solid #38bdf8; color: #38bdf8; padding: 8px 16px; border-radius: 20px; font-size: 12px; z-index: 100; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="title">
-            <span>🛡️ Cephe Su Testi Paftası</span>
-        </div>
-        <div class="stats">
-            <div class="stat-box"><span class="dot dot-passed"></span> <span id="st-passed">0</span></div>
-            <div class="stat-box"><span class="dot dot-failed"></span> <span id="st-failed">0</span></div>
-            <div class="stat-box"><span class="dot dot-pending"></span> <span id="st-pending">0</span></div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchFacade(1)">FACADE-1</button>
+            <button class="tab-btn" onclick="switchFacade(2)">FACADE-2</button>
+            <button class="tab-btn" onclick="switchFacade(3)">FACADE-3</button>
+            <button class="tab-btn" onclick="switchFacade(4)">FACADE-4</button>
         </div>
     </header>
 
     <div class="main" id="canvasContainer">
         <div class="toolbar">
-            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">📂 DXF / JSON Yükle</button>
-            <button class="btn" onclick="exportReport()">💾 Rapor Al</button>
-            <input type="file" id="fileInput" accept=".dxf,.json">
+            <button class="btn btn-primary" onclick="document.getElementById('imgInput').click()">🖼️ Pafta Resmi Yükle</button>
+            <button class="btn" onclick="document.getElementById('dxfInput').click()">📐 DXF Cam Çerçevelerini Yükle</button>
+            <input type="file" id="imgInput" accept="image/*">
+            <input type="file" id="dxfInput" accept=".dxf">
         </div>
 
-        <canvas id="dxfCanvas"></canvas>
+        <canvas id="paftaCanvas"></canvas>
 
         <div class="controls">
-            <button class="btn-ctrl" onclick="zoomCenter(1.25)">+</button>
-            <button class="btn-ctrl" onclick="zoomCenter(0.8)">-</button>
+            <button class="btn-ctrl" onclick="zoom(1.25)">+</button>
+            <button class="btn-ctrl" onclick="zoom(0.8)">-</button>
             <button class="btn-ctrl" onclick="fitToScreen()">⟲</button>
         </div>
-
-        <div class="toast" id="toast"></div>
     </div>
 
     <script>
-        let panels = [];
-        const canvas = document.getElementById('dxfCanvas');
+        const canvas = document.getElementById('paftaCanvas');
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('canvasContainer');
-        const toastEl = document.getElementById('toast');
-
+        
+        let activeFacade = 1;
+        let bgImages = {};
+        let glassPolygons = []; // DXF'den gelen milimetrik cam poligonları
+        
         let scale = 1, offsetX = 0, offsetY = 0;
         let isDragging = false, startX = 0, startY = 0;
-        let initialPinchDist = null, initialScale = 1;
-        let lastTapTime = 0;
-
-        function showToast(msg) {
-            toastEl.innerText = msg;
-            toastEl.style.opacity = '1';
-            setTimeout(() => { toastEl.style.opacity = '0'; }, 2500);
-        }
 
         function resizeCanvas() {
             canvas.width = container.clientWidth;
@@ -89,69 +71,104 @@
         }
         window.addEventListener('resize', resizeCanvas);
 
-        // Varsayılan Cephe Izgarası (DXF yüklenene kadar gösterilir)
-        function generateDemoGrid() {
-            panels = [];
-            const cols = 6, rows = 4, w = 1400, h = 2100, gap = 80;
-            for(let r=0; r<rows; r++) {
-                for(let c=0; c<cols; c++) {
-                    let x = c * (w + gap);
-                    let y = r * (h + gap);
-                    panels.push({
-                        id: `C${r+1}-${c+1}`,
-                        status: 'PENDING',
-                        points: [{x:x, y:y}, {x:x+w, y:y}, {x:x+w, y:y+h}, {x:x, y:y+h}]
-                    });
+        function switchFacade(id) {
+            activeFacade = id;
+            document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === id - 1);
+            });
+            fitToScreen();
+        }
+
+        // 1. Görsel Paftasını Arka Plana Yükleme
+        document.getElementById('imgInput').addEventListener('change', function(e) {
+            let file = e.target.files[0];
+            if (!file) return;
+            let reader = new FileReader();
+            reader.onload = function(evt) {
+                let img = new Image();
+                img.onload = function() {
+                    bgImages[activeFacade] = img;
+                    fitToScreen();
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 2. DXF Çizimindeki Birebir Cam Çerçevelerini Yükleme
+        document.getElementById('dxfInput').addEventListener('change', function(e) {
+            let file = e.target.files[0];
+            if (!file) return;
+            let reader = new FileReader();
+            reader.onload = function(evt) { parseDXF(evt.target.result); };
+            reader.readAsText(file);
+        });
+
+        function parseDXF(text) {
+            let lines = text.split(/\r?\n/);
+            let inEntities = false, curPoly = [], parsed = [], c = 1;
+
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i].trim();
+                if (line === 'ENTITIES') inEntities = true;
+                if (line === 'ENDSEC') inEntities = false;
+
+                if (inEntities) {
+                    if (line === 'LWPOLYLINE' || line === 'POLYLINE') {
+                        if (curPoly.length >= 3) {
+                            parsed.push({ id: `CAM-${c++}`, status: 'PENDING', points: [...curPoly] });
+                        }
+                        curPoly = [];
+                    }
+                    if (line === '10') {
+                        let x = parseFloat(lines[i+1]);
+                        if (lines[i+2] === '20') {
+                            let y = parseFloat(lines[i+3]);
+                            if (!isNaN(x) && !isNaN(y)) curPoly.push({ x, y });
+                        }
+                    }
                 }
+            }
+            if (curPoly.length >= 3) parsed.push({ id: `CAM-${c++}`, status: 'PENDING', points: [...curPoly] });
+
+            if (parsed.length > 0) {
+                glassPolygons = parsed;
+                fitToScreen();
+                alert(`${parsed.length} adet cam çerçevesi tam pafta koordinatlarıyla eşleştirildi!`);
             }
         }
 
         function fitToScreen() {
-            if (!panels || panels.length === 0) return;
-            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-            panels.forEach(p => p.points.forEach(pt => {
-                if (pt.x < minX) minX = pt.x; if (pt.x > maxX) maxX = pt.x;
-                if (pt.y < minY) minY = pt.y; if (pt.y > maxY) maxY = pt.y;
-            }));
-            let bw = maxX - minX, bh = maxY - minY;
-            if (bw === 0 || bh === 0) return;
-
-            const padding = 40;
-            const availW = canvas.width - (padding * 2);
-            const availH = canvas.height - (padding * 2);
-
-            scale = Math.min(availW / bw, availH / bh);
-            offsetX = padding + (availW - bw * scale) / 2 - minX * scale;
-            offsetY = padding + (availH - bh * scale) / 2 - minY * scale;
+            let img = bgImages[activeFacade];
+            if (img) {
+                scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                offsetX = (canvas.width - img.width * scale) / 2;
+                offsetY = (canvas.height - img.height * scale) / 2;
+            } else if (glassPolygons.length > 0) {
+                let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+                glassPolygons.forEach(p => p.points.forEach(pt => {
+                    if (pt.x < minX) minX = pt.x; if (pt.x > maxX) maxX = pt.x;
+                    if (pt.y < minY) minY = pt.y; if (pt.y > maxY) maxY = pt.y;
+                }));
+                let bw = maxX - minX, bh = maxY - minY;
+                scale = Math.min((canvas.width * 0.9) / bw, (canvas.height * 0.9) / bh);
+                offsetX = (canvas.width - bw * scale) / 2 - minX * scale;
+                offsetY = (canvas.height - bh * scale) / 2 - minY * scale;
+            }
             draw();
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Arka plan ızgara çizgileri
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 1;
-            const step = 100 * scale;
-            if(step > 15) {
-                for(let x = offsetX % step; x < canvas.width; x += step) {
-                    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-                }
-                for(let y = offsetY % step; y < canvas.height; y += step) {
-                    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
-                }
+            let img = bgImages[activeFacade];
+            
+            // Pafta Görselini Çiz
+            if (img) {
+                ctx.drawImage(img, offsetX, offsetY, img.width * scale, img.height * scale);
             }
 
-            // Cam panellerini çiz
-            let passedCnt = 0, failedCnt = 0, pendingCnt = 0;
-
-            panels.forEach(p => {
-                if (p.status === 'PASSED') passedCnt++;
-                else if (p.status === 'FAILED') failedCnt++;
-                else pendingCnt++;
-
-                if (!p.points || p.points.length < 3) return;
-
+            // Gerçek Çerçevelere Oturan Cam Kutucuklarını Çiz
+            glassPolygons.forEach(p => {
                 ctx.beginPath();
                 let p0 = toScreen(p.points[0]);
                 ctx.moveTo(p0.x, p0.y);
@@ -162,37 +179,22 @@
                 ctx.closePath();
 
                 if (p.status === 'PASSED') {
-                    ctx.fillStyle = 'rgba(34, 197, 94, 0.45)';
+                    ctx.fillStyle = 'rgba(34, 197, 94, 0.55)';
                     ctx.strokeStyle = '#22c55e';
                     ctx.lineWidth = 2;
                 } else if (p.status === 'FAILED') {
-                    ctx.fillStyle = 'rgba(239, 68, 68, 0.5)';
+                    ctx.fillStyle = 'rgba(239, 68, 68, 0.65)';
                     ctx.strokeStyle = '#ef4444';
-                    ctx.lineWidth = 2.5;
+                    ctx.lineWidth = 2;
                 } else {
-                    ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
-                    ctx.strokeStyle = '#f59e0b';
-                    ctx.lineWidth = 1.2;
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+                    ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+                    ctx.lineWidth = 1;
                 }
 
                 ctx.fill();
                 ctx.stroke();
-
-                // Etiket Yazısı
-                if (scale > 0.03) {
-                    let c = getCenter(p.points);
-                    let sc = toScreen(c);
-                    ctx.fillStyle = '#ffffff';
-                    ctx.font = `${Math.max(10, Math.min(14, 11 * scale))}px sans-serif`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(p.id, sc.x, sc.y);
-                }
             });
-
-            document.getElementById('st-passed').innerText = passedCnt;
-            document.getElementById('st-failed').innerText = failedCnt;
-            document.getElementById('st-pending').innerText = pendingCnt;
         }
 
         function toScreen(pt) {
@@ -201,117 +203,24 @@
         function toWorld(sx, sy) {
             return { x: (sx - offsetX) / scale, y: (canvas.height - sy - offsetY) / scale };
         }
-        function getCenter(pts) {
-            let sx = 0, sy = 0;
-            pts.forEach(p => { sx += p.x; sy += p.y; });
-            return { x: sx / pts.length, y: sy / pts.length };
-        }
 
-        function zoomCenter(factor) {
-            let cx = canvas.width / 2, cy = canvas.height / 2;
-            let wPt = toWorld(cx, cy);
-            scale *= factor;
-            offsetX = cx - wPt.x * scale;
-            offsetY = canvas.height - cy - wPt.y * scale;
-            draw();
-        }
-
-        // --- MOBİL & FARE ETKİLEŞİMLERİ ---
-        container.addEventListener('mousedown', e => {
-            isDragging = true;
-            startX = e.clientX - offsetX;
-            startY = e.clientY - offsetY;
-        });
-        window.addEventListener('mousemove', e => {
-            if (isDragging) {
-                offsetX = e.clientX - startX;
-                offsetY = e.clientY - startY;
-                draw();
-            }
-        });
-        window.addEventListener('mouseup', () => { isDragging = false; });
-
-        container.addEventListener('wheel', e => {
-            e.preventDefault();
-            let zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
-            let wPt = toWorld(e.clientX, e.clientY);
-            scale *= zoomFactor;
-            offsetX = e.clientX - wPt.x * scale;
-            offsetY = canvas.height - e.clientY - wPt.y * scale;
-            draw();
-        }, { passive: false });
-
-        // Touch Olayları (Pinch-to-Zoom + Pan + Tap)
-        container.addEventListener('touchstart', e => {
-            if (e.touches.length === 1) {
-                isDragging = true;
-                startX = e.touches[0].clientX - offsetX;
-                startY = e.touches[0].clientY - offsetY;
-            } else if (e.touches.length === 2) {
-                isDragging = false;
-                initialPinchDist = getPinchDist(e);
-                initialScale = scale;
-            }
-        }, { passive: true });
-
-        container.addEventListener('touchmove', e => {
-            if (e.touches.length === 1 && isDragging) {
-                offsetX = e.touches[0].clientX - startX;
-                offsetY = e.touches[0].clientY - startY;
-                draw();
-            } else if (e.touches.length === 2 && initialPinchDist) {
-                let newDist = getPinchDist(e);
-                let factor = newDist / initialPinchDist;
-                let midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-                let midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                let wPt = toWorld(midX, midY);
-                scale = initialScale * factor;
-                offsetX = midX - wPt.x * scale;
-                offsetY = canvas.height - midY - wPt.y * scale;
-                draw();
-            }
-        }, { passive: true });
-
-        container.addEventListener('touchend', e => {
-            if (e.touches.length === 0) {
-                isDragging = false;
-                initialPinchDist = null;
-            }
-        });
-
-        function getPinchDist(e) {
-            return Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-        }
-
-        // Tıklama ile İşaretleme Mantığı (Tek Tık: Geçti, Çift Tık: Sızdırdı)
-        let tapTimer = null;
-        container.addEventListener('click', e => {
+        // Cam Kutucuklarına Dokunma Etkileşimi
+        let lastTap = 0;
+        canvas.addEventListener('click', e => {
             let rect = canvas.getBoundingClientRect();
-            let clickX = e.clientX - rect.left;
-            let clickY = e.clientY - rect.top;
-            let wPt = toWorld(clickX, clickY);
+            let clickPt = toWorld(e.clientX - rect.left, e.clientY - rect.top);
 
-            let clickedPanel = panels.find(p => isPointInPoly(wPt, p.points));
-            if (!clickedPanel) return;
-
-            let now = Date.now();
-            if (now - lastTapTime < 300) {
-                // Çift Tık -> FAILED
-                clearTimeout(tapTimer);
-                tapTimer = null;
-                clickedPanel.status = (clickedPanel.status === 'FAILED') ? 'PENDING' : 'FAILED';
+            let clickedGlass = glassPolygons.find(p => isPointInPoly(clickPt, p.points));
+            if (clickedGlass) {
+                let now = Date.now();
+                if (now - lastTap < 300) {
+                    clickedGlass.status = (clickedGlass.status === 'FAILED') ? 'PENDING' : 'FAILED';
+                } else {
+                    clickedGlass.status = (clickedGlass.status === 'PASSED') ? 'PENDING' : 'PASSED';
+                }
+                lastTap = now;
                 draw();
-            } else {
-                // Tek Tık -> PASSED (Gecikmeli tetiklenir)
-                tapTimer = setTimeout(() => {
-                    clickedPanel.status = (clickedPanel.status === 'PASSED') ? 'PENDING' : 'PASSED';
-                    draw();
-                }, 250);
             }
-            lastTapTime = now;
         });
 
         function isPointInPoly(pt, poly) {
@@ -326,86 +235,13 @@
             return inside;
         }
 
-        // --- DXF & JSON DOSYA PARSER ---
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            let file = e.target.files[0];
-            if (!file) return;
+        // Yakınlaştırma ve Kaydırma
+        function zoom(f) { scale *= f; draw(); }
+        container.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX - offsetX; startY = e.clientY - offsetY; });
+        window.addEventListener('mousemove', e => { if (isDragging) { offsetX = e.clientX - startX; offsetY = e.clientY - startY; draw(); } });
+        window.addEventListener('mouseup', () => { isDragging = false; });
 
-            let reader = new FileReader();
-            reader.onload = function(evt) {
-                let content = evt.target.result;
-                if (file.name.toLowerCase().endsWith('.json')) {
-                    try {
-                        panels = JSON.parse(content);
-                        fitToScreen();
-                        showToast("JSON Raporu Yüklendi!");
-                    } catch(err) { alert("Hatalı JSON dosyası."); }
-                } else {
-                    parseDXF(content);
-                }
-            };
-            reader.readAsText(file);
-        });
-
-        function parseDXF(text) {
-            let lines = text.split(/\r?\n/);
-            let inEntities = false;
-            let curPoly = [];
-            let parsed = [];
-            let count = 1;
-
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i].trim();
-
-                if (line === 'ENTITIES') inEntities = true;
-                if (line === 'ENDSEC' && inEntities) inEntities = false;
-
-                if (inEntities) {
-                    if (line === 'LWPOLYLINE' || line === 'POLYLINE') {
-                        if (curPoly.length >= 3) {
-                            parsed.push({ id: `CAM-${count++}`, status: 'PENDING', points: [...curPoly] });
-                        }
-                        curPoly = [];
-                    }
-                    if (line === '10') {
-                        let x = parseFloat(lines[i+1]);
-                        let y = 0;
-                        if (lines[i+2] === '20') {
-                            y = parseFloat(lines[i+3]);
-                        }
-                        if (!isNaN(x) && !isNaN(y)) {
-                            curPoly.push({ x, y });
-                        }
-                    }
-                }
-            }
-            if (curPoly.length >= 3) {
-                parsed.push({ id: `CAM-${count++}`, status: 'PENDING', points: [...curPoly] });
-            }
-
-            if (parsed.length > 0) {
-                panels = parsed;
-                fitToScreen();
-                showToast(`${parsed.length} adet cam paneli yüklendi!`);
-            } else {
-                alert("DXF içerisinde kapalı poligon (LWPOLYLINE) bulunamadı. Lütfen çizimin DXF formatında aktarıldığından emin olun.");
-            }
-        }
-
-        function exportReport() {
-            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(panels, null, 2));
-            let anchor = document.createElement('a');
-            anchor.setAttribute("href", dataStr);
-            anchor.setAttribute("download", `Su_Testi_Raporu_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(anchor);
-            anchor.click();
-            anchor.remove();
-        }
-
-        // İlk Çalıştırma
         resizeCanvas();
-        generateDemoGrid();
-        fitToScreen();
     </script>
 </body>
 </html>
