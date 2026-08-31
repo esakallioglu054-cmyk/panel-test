@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cephe Su Testi Takip</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glass-box {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .glass-box:hover {
+      opacity: 0.8;
+    }
+    .status-UNTESTED { fill: #e5e7eb; stroke: #9ca3af; stroke-width: 1; }
+    .status-PASSED { fill: #22c55e; fill-opacity: 0.6; stroke: #15803d; stroke-width: 1.5; }
+    .status-FAILED { fill: #ef4444; fill-opacity: 0.7; stroke: #b91c1c; stroke-width: 1.5; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+      <h1 class="text-lg font-bold text-slate-800">Su Testi Kontrol</h1>
+      <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full font-medium">Offline Çalışıyor</span>
+    </div>
+    
+    <div class="flex border-t border-slate-100 bg-slate-50 overflow-x-auto">
+      <button onclick="switchFacade('F1')" id="btn-F1" class="facade-tab flex-1 py-3 px-4 text-sm font-semibold text-center border-b-2 border-blue-600 text-blue-600 whitespace-nowrap">FACADE-1 (KB)</button>
+      <button onclick="switchFacade('F2')" id="btn-F2" class="facade-tab flex-1 py-3 px-4 text-sm font-semibold text-center border-b-2 border-transparent text-slate-500 whitespace-nowrap">FACADE-2 (GD)</button>
+      <button onclick="switchFacade('F3')" id="btn-F3" class="facade-tab flex-1 py-3 px-4 text-sm font-semibold text-center border-b-2 border-transparent text-slate-500 whitespace-nowrap">FACADE-3 (GB)</button>
+      <button onclick="switchFacade('F4')" id="btn-F4" class="facade-tab flex-1 py-3 px-4 text-sm font-semibold text-center border-b-2 border-transparent text-slate-500 whitespace-nowrap">FACADE-4 (KD)</button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 flex flex-col items-center justify-center">
+    
+    <div class="w-full bg-white p-3 rounded-xl border border-slate-200 mb-4 flex justify-around text-center text-xs font-medium shadow-sm">
+      <div>
+        <span class="block text-slate-400">Toplam Cam</span>
+        <span id="stat-total" class="text-base font-bold text-slate-700">0</span>
+      </div>
+      <div>
+        <span class="block text-emerald-600">Geçti</span>
+        <span id="stat-passed" class="text-base font-bold text-emerald-600">0</span>
+      </div>
+      <div>
+        <span class="block text-rose-600">Geçmedi</span>
+        <span id="stat-failed" class="text-base font-bold text-rose-600">0</span>
+      </div>
+      <div>
+        <span class="block text-slate-400">Bekleyen</span>
+        <span id="stat-untested" class="text-base font-bold text-slate-500">0</span>
+      </div>
+    </div>
+
+    <div class="w-full bg-white border border-slate-200 rounded-xl p-2 shadow-sm overflow-auto max-h-[65vh] flex justify-center">
+      <svg id="facade-svg" width="320" height="600" viewBox="0 0 320 600" class="select-none">
+        </svg>
+    </div>
+  </main>
+
+  <div id="modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl border border-slate-100 flex flex-col gap-4">
+      
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div>
+          <h3 id="modal-glass-id" class="font-bold text-slate-800 text-base">F1-KAT28-C01</h3>
+          <p class="text-xs text-slate-400">Su Testi Sonuç Girişi</p>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 text-xl font-bold p-1">✕</button>
+      </div>
+
+      <div class="flex gap-2">
+        <button onclick="setStatus('PASSED')" id="btn-status-passed" class="flex-1 py-2.5 rounded-xl border-2 border-emerald-500 text-emerald-700 font-semibold text-xs flex items-center justify-center gap-1">
+          ✅ TESTTEN GEÇTİ
+        </button>
+        <button onclick="setStatus('FAILED')" id="btn-status-failed" class="flex-1 py-2.5 rounded-xl border-2 border-slate-200 text-slate-500 font-semibold text-xs flex items-center justify-center gap-1">
+          ❌ GEÇMEDİ
+        </button>
+      </div>
+
+      <div id="reason-container" class="hidden flex-col gap-1">
+        <label class="text-xs font-semibold text-slate-600">Başarısızlık Nedeni / Not:</label>
+        <textarea id="failure-reason" rows="3" placeholder="Örn: Sol alt fitil birleşim yerinden damlama yaptı." class="w-full text-xs p-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-rose-500 bg-slate-50"></textarea>
+      </div>
+
+      <button onclick="saveGlassData()" class="w-full bg-slate-800 text-white font-semibold py-3 rounded-xl text-xs shadow-md active:scale-95 transition-transform">
+        KAYDET VE KAPAT
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Örnek Kat ve Aks Yapısı (Görsellerdeki 30 Katlı Yapıya Uygun)
+    const FLOORS = 30;
+    const COLUMNS = 8;
+    let currentFacade = 'F1';
+    let currentSelectedGlassId = null;
+    let currentSelectedStatus = 'UNTESTED';
+
+    // LocalStorage Veri Yükleme
+    let testData = JSON.parse(localStorage.getItem('facade_test_data')) || {};
+
+    // Sayfa Yüklendiğinde
+    window.onload = () => {
+      renderFacade();
+    };
+
+    function switchFacade(facadeId) {
+      currentFacade = facadeId;
+      document.querySelectorAll('.facade-tab').forEach(btn => {
+        btn.classList.remove('border-blue-600', 'text-blue-600');
+        btn.classList.add('border-transparent', 'text-slate-500');
+      });
+      document.getElementById(`btn-${facadeId}`).classList.add('border-blue-600', 'text-blue-600');
+      document.getElementById(`btn-${facadeId}`).classList.remove('border-transparent', 'text-slate-500');
+      renderFacade();
+    }
+
+    function renderFacade() {
+      const svg = document.getElementById('facade-svg');
+      svg.innerHTML = '';
+      
+      let passedCount = 0, failedCount = 0, untestedCount = 0;
+      const boxWidth = 32, boxHeight = 16, gap = 4;
+
+      for (let f = FLOORS; f >= 1; f--) {
+        for (let c = 1; c <= COLUMNS; c++) {
+          const glassId = `${currentFacade}-K${f}-C${c}`;
+          const glassInfo = testData[glassId] || { status: 'UNTESTED', reason: '' };
+
+          if (glassInfo.status === 'PASSED') passedCount++;
+          else if (glassInfo.status === 'FAILED') failedCount++;
+          else untestedCount++;
+
+          const x = (c - 1) * (boxWidth + gap) + 15;
+          const y = (FLOORS - f) * (boxHeight + gap) + 10;
+
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', x);
+          rect.setAttribute('y', y);
+          rect.setAttribute('width', boxWidth);
+          rect.setAttribute('height', boxHeight);
+          rect.setAttribute('rx', '2');
+          rect.setAttribute('class', `glass-box status-${glassInfo.status}`);
+          rect.onclick = () => openModal(glassId, glassInfo);
+
+          svg.appendChild(rect);
+        }
+      }
+
+      // İstatistikleri Güncelle
+      document.getElementById('stat-total').innerText = FLOORS * COLUMNS;
+      document.getElementById('stat-passed').innerText = passedCount;
+      document.getElementById('stat-failed').innerText = failedCount;
+      document.getElementById('stat-untested').innerText = untestedCount;
+    }
+
+    function openModal(glassId, glassInfo) {
+      currentSelectedGlassId = glassId;
+      currentSelectedStatus = glassInfo.status || 'UNTESTED';
+      
+      document.getElementById('modal-glass-id').innerText = glassId;
+      document.getElementById('failure-reason').value = glassInfo.reason || '';
+      
+      setStatus(currentSelectedStatus);
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal').classList.remove('flex');
+    }
+
+    function setStatus(status) {
+      currentSelectedStatus = status;
+      const btnPassed = document.getElementById('btn-status-passed');
+      const btnFailed = document.getElementById('btn-status-failed');
+      const reasonContainer = document.getElementById('reason-container');
+
+      if (status === 'PASSED') {
+        btnPassed.className = "flex-1 py-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-700 font-semibold text-xs flex items-center justify-center gap-1";
+        btnFailed.className = "flex-1 py-2.5 rounded-xl border-2 border-slate-200 text-slate-400 font-semibold text-xs flex items-center justify-center gap-1";
+        reasonContainer.classList.add('hidden');
+      } else if (status === 'FAILED') {
+        btnFailed.className = "flex-1 py-2.5 rounded-xl border-2 border-rose-500 bg-rose-50 text-rose-700 font-semibold text-xs flex items-center justify-center gap-1";
+        btnPassed.className = "flex-1 py-2.5 rounded-xl border-2 border-slate-200 text-slate-400 font-semibold text-xs flex items-center justify-center gap-1";
+        reasonContainer.classList.remove('hidden');
+        reasonContainer.classList.add('flex');
+      } else {
+        btnPassed.className = "flex-1 py-2.5 rounded-xl border-2 border-slate-200 text-slate-400 font-semibold text-xs flex items-center justify-center gap-1";
+        btnFailed.className = "flex-1 py-2.5 rounded-xl border-2 border-slate-200 text-slate-400 font-semibold text-xs flex items-center justify-center gap-1";
+        reasonContainer.classList.add('hidden');
+      }
+    }
+
+    function saveGlassData() {
+      const reason = document.getElementById('failure-reason').value;
+      testData[currentSelectedGlassId] = {
+        status: currentSelectedStatus,
+        reason: currentSelectedStatus === 'FAILED' ? reason : ''
+      };
+
+      localStorage.setItem('facade_test_data', JSON.stringify(testData));
+      closeModal();
+      renderFacade();
+    }
+  </script>
+</body>
+</html>
