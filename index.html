@@ -3,65 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Şantiye Cephe Su Testi Paftası</title>
+  <title>Cephe Su Testi Kontrolü</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #f1f5f9; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; }
+    body { background: #f8fafc; color: #0f172a; min-height: 100vh; pb: 20px; }
     
-    header { background: #fff; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 30; }
-    .header-top { padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; }
-    .title { font-size: 15px; font-weight: 700; color: #0f172a; }
-    .subtitle { font-size: 10px; color: #64748b; }
-    .badge { background: #dcfce7; color: #15803d; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+    header { background: #fff; border-b: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 20; padding: 10px 16px; }
+    .title { font-size: 16px; font-weight: 800; color: #0f172a; }
     
-    .tabs { display: flex; background: #f8fafc; border-top: 1px solid #f1f5f9; overflow-x: auto; }
-    .tab-btn { flex: 1; min-width: 90px; padding: 10px; text-align: center; font-size: 11px; font-weight: 700; color: #64748b; border: none; background: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
-    .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; background: #fff; }
+    .tabs { display: flex; gap: 4px; margin-top: 10px; overflow-x: auto; }
+    .tab-btn { flex: 1; padding: 8px 12px; font-size: 11px; font-weight: 700; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; color: #64748b; white-space: nowrap; cursor: pointer; }
+    .tab-btn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
 
-    .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px; background: #fff; margin: 10px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
-    .stat-item { padding: 4px; background: #f8fafc; border-radius: 8px; border: 1px solid #f1f5f9; }
-    .stat-label { font-size: 9px; color: #64748b; font-weight: 700; display: block; text-transform: uppercase; }
-    .stat-val { font-size: 14px; font-weight: 900; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 12px; background: #fff; margin: 12px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
+    .stat-box { font-size: 10px; font-weight: 700; color: #64748b; }
+    .stat-val { font-size: 15px; font-weight: 900; display: block; margin-top: 2px; }
 
-    /* PAFTA ÇİZİM ALANI */
-    .pafta-container { flex: 1; margin: 0 10px 10px 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; overflow: auto; display: flex; justify-content: center; max-height: 70vh; min-height: 400px; padding: 10px 0; }
+    .floor-list { padding: 0 12px; display: flex; flex-direction: column; gap: 8px; }
+    .floor-row { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 12px; }
+    .floor-title { font-size: 11px; font-weight: 800; color: #334155; margin-bottom: 6px; border-b: 1px solid #f1f5f9; pb: 4px; }
     
-    .glass-box { cursor: pointer; transition: all 0.15s ease; }
-    .glass-box:hover { opacity: 0.8; stroke-width: 2px; }
-
-    .status-UNTESTED { fill: #38bdf8; fill-opacity: 0.2; stroke: #0284c7; stroke-width: 1; }
-    .status-PASSED { fill: #22c55e; fill-opacity: 0.75; stroke: #15803d; stroke-width: 1.5; }
-    .status-FAILED { fill: #ef4444; fill-opacity: 0.85; stroke: #991b1b; stroke-width: 1.5; }
-
-    .floor-text { font-size: 8px; font-weight: 700; fill: #475569; }
-    .axis-text { font-size: 8px; font-weight: 700; fill: #64748b; }
-    .grid-line { stroke: #e2e8f0; stroke-width: 0.8; stroke-dasharray: 2,2; }
-
-    /* POP-UP MODAL */
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 50; padding: 16px; }
-    .modal-backdrop.show { display: flex; }
-    .modal-card { background: #fff; border-radius: 16px; width: 100%; max-width: 320px; padding: 18px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); }
-    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+    .glass-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+    .glass-item { height: 32px; border-radius: 6px; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; background: #f1f5f9; color: #475569; cursor: pointer; }
     
-    .btn { width: 100%; padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 700; border: 1px solid #cbd5e1; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .btn-passed { border-color: #22c55e; background: #f0fdf4; color: #15803d; }
-    .btn-failed { border-color: #ef4444; background: #fef2f2; color: #b91c1c; }
-    .btn-reset { border-style: dashed; border-color: #94a3b8; color: #64748b; padding: 8px; font-size: 11px; }
-    .btn-save { background: #0f172a; color: #fff; border: none; margin-top: 4px; }
-    
-    textarea { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 11px; background: #f8fafc; resize: none; outline: none; }
+    .glass-item.PASSED { background: #22c55e; color: #fff; border-color: #16a34a; }
+    .glass-item.FAILED { background: #ef4444; color: #fff; border-color: #dc2626; }
+
+    /* MODAL */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+    .modal.show { display: flex; }
+    .modal-card { background: #fff; border-radius: 16px; width: 100%; max-width: 320px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .btn { width: 100%; padding: 12px; border-radius: 10px; font-size: 12px; font-weight: 800; border: none; cursor: pointer; }
+    .btn-pass { background: #22c55e; color: #fff; }
+    .btn-fail { background: #ef4444; color: #fff; }
+    .btn-reset { background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; }
+    .btn-save { background: #0f172a; color: #fff; margin-top: 6px; }
+    textarea { width: 100%; padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 11px; outline: none; }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="header-top">
-      <div>
-        <div class="title">Şantiye Cephe Takip</div>
-        <div class="subtitle">Su Testi Kontrol Paftası</div>
-      </div>
-      <span class="badge">Offline Mod</span>
-    </div>
+    <div class="title">Şantiye Su Testi Paneli</div>
     <div class="tabs">
       <button onclick="switchFacade('F1')" id="btn-F1" class="tab-btn active">FACADE-1 (KB)</button>
       <button onclick="switchFacade('F2')" id="btn-F2" class="tab-btn">FACADE-2 (GD)</button>
@@ -70,192 +53,115 @@
     </div>
   </header>
 
-  <div class="stats-bar">
-    <div class="stat-item"><span class="stat-label">Toplam</span><span id="stat-total" class="stat-val" style="color:#334155">0</span></div>
-    <div class="stat-item"><span class="stat-label" style="color:#16a34a">Geçti</span><span id="stat-passed" class="stat-val" style="color:#16a34a">0</span></div>
-    <div class="stat-item"><span class="stat-label" style="color:#dc2626">Geçmedi</span><span id="stat-failed" class="stat-val" style="color:#dc2626">0</span></div>
-    <div class="stat-item"><span class="stat-label" style="color:#0284c7">Bekleyen</span><span id="stat-untested" class="stat-val" style="color:#0284c7">0</span></div>
+  <div class="stats">
+    <div class="stat-box">TOPLAM<span id="st-tot" class="stat-val" style="color:#0f172a">0</span></div>
+    <div class="stat-box">GEÇTİ<span id="st-pas" class="stat-val" style="color:#22c55e">0</span></div>
+    <div class="stat-box">GEÇMEDİ<span id="st-fai" class="stat-val" style="color:#ef4444">0</span></div>
+    <div class="stat-box">BEKLEYEN<span id="st-unt" class="stat-val" style="color:#64748b">0</span></div>
   </div>
 
-  <div class="pafta-container">
-    <svg id="glass-svg" width="340" height="960" viewBox="0 0 340 960"></svg>
-  </div>
+  <div id="main-container" class="floor-list"></div>
 
-  <!-- MODAL POPUP -->
-  <div id="modal" class="modal-backdrop">
+  <!-- MODAL -->
+  <div id="modal" class="modal">
     <div class="modal-card">
-      <div class="modal-header">
-        <div>
-          <span id="modal-facade-title" style="font-size: 9px; font-weight: 800; color: #2563eb; display: block;">FACADE-1</span>
-          <h3 id="modal-glass-id" style="font-size: 15px; font-weight: 800; color: #0f172a;">30.FLOOR / Aks Zc-1</h3>
-        </div>
-        <button onclick="closeModal()" style="border:none; background:none; font-size: 18px; color: #94a3b8; cursor:pointer;">✕</button>
+      <h3 id="m-title" style="font-size:14px; font-weight:800;"></h3>
+      <button onclick="setSt('PASSED')" class="btn btn-pass">✅ TESTTEN GEÇTİ</button>
+      <button onclick="setSt('FAILED')" class="btn btn-fail">❌ TESTTEN GEÇMEDİ</button>
+      <button onclick="setSt('UNTESTED')" class="btn btn-reset">🔄 İPTAL ET / SIFIRLA</button>
+      
+      <div id="reason-box" style="display:none;">
+        <label style="font-size:10px; font-weight:700;">Hata Nedeni:</label>
+        <textarea id="reason-text" rows="3" placeholder="Sızıntı detayını yazın..."></textarea>
       </div>
 
-      <button onclick="setStatus('PASSED')" class="btn btn-passed">✅ TESTTEN GEÇTİ</button>
-      <button onclick="setStatus('FAILED')" class="btn btn-failed">❌ TESTTEN GEÇMEDİ</button>
-      <button onclick="setStatus('UNTESTED')" class="btn btn-reset">🔄 Seçimi İptal Et / Sıfırla</button>
-
-      <div id="reason-container" style="display: none; flex-direction: column; gap: 4px;">
-        <label style="font-size: 10px; font-weight: 700; color: #475569;">Başarısızlık Açıklaması:</label>
-        <textarea id="failure-reason" rows="3" placeholder="Sızıntının yerini yazınız..."></textarea>
-      </div>
-
-      <button onclick="saveGlassData()" class="btn btn-save">KAYDET VE GÜNCELLE</button>
+      <button onclick="saveData()" class="btn btn-save">KAYDET</button>
     </div>
   </div>
 
   <script>
-    const TOTAL_FLOORS = 30;
-    const COLUMNS_COUNT = 8;
-    
-    let currentFacade = 'F1';
-    let currentSelectedGlassId = null;
-    let currentSelectedStatus = 'UNTESTED';
+    let curF = 'F1';
+    let selId = null;
+    let selSt = 'UNTESTED';
+    let db = JSON.parse(localStorage.getItem('facade_guaranteed_db')) || {};
 
-    let testData = {};
-    try {
-      testData = JSON.parse(localStorage.getItem('facade_test_final_db')) || {};
-    } catch (e) {
-      testData = {};
+    const facadeNames = { 'F1':'FACADE-1 (KUZEYBATI)', 'F2':'FACADE-2 (GÜNEYDOĞU)', 'F3':'FACADE-3 (GÜNEYBATI)', 'F4':'FACADE-4 (KUZEYDOĞU)' };
+
+    window.onload = () => render();
+
+    function switchFacade(id) {
+      curF = id;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`btn-${id}`).classList.add('active');
+      render();
     }
 
-    // Sayfa yüklenir yüklenmez çiz
-    document.addEventListener("DOMContentLoaded", function() {
-      renderPafta();
-    });
+    function render() {
+      const container = document.getElementById('main-container');
+      container.innerHTML = '';
+      let p=0, f=0, u=0;
 
-    function switchFacade(facadeId) {
-      currentFacade = facadeId;
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      const activeBtn = document.getElementById(`btn-${facadeId}`);
-      if(activeBtn) activeBtn.classList.add('active');
-      renderPafta();
-    }
+      for (let floor = 30; floor >= 1; floor--) {
+        const fRow = document.createElement('div');
+        fRow.className = 'floor-row';
+        
+        const fTitle = document.createElement('div');
+        fTitle.className = 'floor-title';
+        fTitle.innerText = `${floor}. FLOOR`;
+        fRow.appendChild(fTitle);
 
-    function renderPafta() {
-      const svg = document.getElementById('glass-svg');
-      if(!svg) return;
-      svg.innerHTML = '';
+        const grid = document.createElement('div');
+        grid.className = 'glass-grid';
 
-      let passedCount = 0, failedCount = 0, untestedCount = 0;
-      
-      const startX = 65;
-      const startY = 25;
-      const boxWidth = 28;
-      const boxHeight = 24;
-      const gapX = 3;
-      const gapY = 5;
+        for (let c = 1; c <= 8; c++) {
+          const gId = `${curF}-FL${floor}-C${c}`;
+          const info = db[gId] || { status: 'UNTESTED' };
 
-      // Aks Yazıları (Zc-1 - Zc-8)
-      for (let c = 1; c <= COLUMNS_COUNT; c++) {
-        const x = startX + (c - 1) * (boxWidth + gapX) + (boxWidth / 2);
-        const axisText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        axisText.setAttribute('x', x);
-        axisText.setAttribute('y', startY + TOTAL_FLOORS * (boxHeight + gapY) + 15);
-        axisText.setAttribute('text-anchor', 'middle');
-        axisText.setAttribute('class', 'axis-text');
-        axisText.textContent = `Zc-${c}`;
-        svg.appendChild(axisText);
-      }
+          if(info.status === 'PASSED') p++;
+          else if(info.status === 'FAILED') f++;
+          else u++;
 
-      // Katlar ve Camlar (30. Kat En Üstte)
-      for (let floor = TOTAL_FLOORS; floor >= 1; floor--) {
-        const rowIndex = TOTAL_FLOORS - floor;
-        const y = startY + rowIndex * (boxHeight + gapY);
-
-        // Kat İsmi
-        const floorText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        floorText.setAttribute('x', startX - 6);
-        floorText.setAttribute('y', y + (boxHeight / 2) + 3);
-        floorText.setAttribute('text-anchor', 'end');
-        floorText.setAttribute('class', 'floor-text');
-        floorText.textContent = `${floor}.FLOOR`;
-        svg.appendChild(floorText);
-
-        // Hizalama Çizgisi
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', startX - 2);
-        line.setAttribute('y1', y + boxHeight);
-        line.setAttribute('x2', startX + COLUMNS_COUNT * (boxWidth + gapX));
-        line.setAttribute('y2', y + boxHeight);
-        line.setAttribute('class', 'grid-line');
-        svg.appendChild(line);
-
-        // Cam Kareleri
-        for (let col = 1; col <= COLUMNS_COUNT; col++) {
-          const glassId = `${currentFacade}-FL${floor}-C${col}`;
-          const glassInfo = testData[glassId] || { status: 'UNTESTED', reason: '' };
-
-          if (glassInfo.status === 'PASSED') passedCount++;
-          else if (glassInfo.status === 'FAILED') failedCount++;
-          else untestedCount++;
-
-          const x = startX + (col - 1) * (boxWidth + gapX);
-
-          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-          rect.setAttribute('x', x);
-          rect.setAttribute('y', y);
-          rect.setAttribute('width', boxWidth);
-          rect.setAttribute('height', boxHeight);
-          rect.setAttribute('rx', '2');
-          rect.setAttribute('class', `glass-box status-${glassInfo.status}`);
-          
-          rect.onclick = () => openModal(glassId, floor, col, glassInfo);
-          svg.appendChild(rect);
+          const item = document.createElement('div');
+          item.className = `glass-item ${info.status}`;
+          item.innerText = `C${c}`;
+          item.onclick = () => openM(gId, floor, c, info);
+          grid.appendChild(item);
         }
+
+        fRow.appendChild(grid);
+        container.appendChild(fRow);
       }
 
-      document.getElementById('stat-total').innerText = TOTAL_FLOORS * COLUMNS_COUNT;
-      document.getElementById('stat-passed').innerText = passedCount;
-      document.getElementById('stat-failed').innerText = failedCount;
-      document.getElementById('stat-untested').innerText = untestedCount;
+      document.getElementById('st-tot').innerText = 30 * 8;
+      document.getElementById('st-pas').innerText = p;
+      document.getElementById('st-fai').innerText = f;
+      document.getElementById('st-unt').innerText = u;
     }
 
-    function openModal(glassId, floor, col, glassInfo) {
-      currentSelectedGlassId = glassId;
-      currentSelectedStatus = glassInfo.status || 'UNTESTED';
-      
-      const facadeNames = { 'F1': 'FACADE-1 (KUZEYBATI)', 'F2': 'FACADE-2 (GÜNEYDOĞU)', 'F3': 'FACADE-3 (GÜNEYBATI)', 'F4': 'FACADE-4 (KUZEYDOĞU)' };
-      
-      document.getElementById('modal-facade-title').innerText = facadeNames[currentFacade];
-      document.getElementById('modal-glass-id').innerText = `${floor}.FLOOR / Aks Zc-${col}`;
-      document.getElementById('failure-reason').value = glassInfo.reason || '';
-      
-      setStatus(currentSelectedStatus);
+    function openM(id, fl, c, info) {
+      selId = id;
+      selSt = info.status || 'UNTESTED';
+      document.getElementById('m-title').innerText = `${facadeNames[curF]} - Kat:${fl} / Cam:C${c}`;
+      document.getElementById('reason-text').value = info.reason || '';
+      setSt(selSt);
       document.getElementById('modal').classList.add('show');
     }
 
-    function closeModal() {
+    function setSt(st) {
+      selSt = st;
+      document.getElementById('reason-box').style.display = (st === 'FAILED') ? 'block' : 'none';
+    }
+
+    function saveData() {
+      if(!selId) return;
+      if(selSt === 'UNTESTED') {
+        delete db[selId];
+      } else {
+        db[selId] = { status: selSt, reason: document.getElementById('reason-text').value.trim() };
+      }
+      localStorage.setItem('facade_guaranteed_db', JSON.stringify(db));
       document.getElementById('modal').classList.remove('show');
-    }
-
-    function setStatus(status) {
-      currentSelectedStatus = status;
-      const reasonContainer = document.getElementById('reason-container');
-      if (status === 'FAILED') {
-        reasonContainer.style.display = 'flex';
-      } else {
-        reasonContainer.style.display = 'none';
-      }
-    }
-
-    function saveGlassData() {
-      if (!currentSelectedGlassId) return;
-      const reason = document.getElementById('failure-reason').value.trim();
-      
-      if (currentSelectedStatus === 'UNTESTED') {
-        delete testData[currentSelectedGlassId];
-      } else {
-        testData[currentSelectedGlassId] = {
-          status: currentSelectedStatus,
-          reason: currentSelectedStatus === 'FAILED' ? reason : ''
-        };
-      }
-
-      localStorage.setItem('facade_test_final_db', JSON.stringify(testData));
-      closeModal();
-      renderPafta();
+      render();
     }
   </script>
 </body>
