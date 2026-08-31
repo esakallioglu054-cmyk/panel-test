@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Şantiye Cephe Görsel İşaretleme</title>
+  <title>Şantiye Cephe Su Testi Paftası</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #0f172a; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
     
-    header { background: #1e293b; border-b: 1px solid #334155; position: sticky; top: 0; z-index: 30; }
+    header { background: #1e293b; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 30; }
     .header-top { padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
     .title { font-size: 14px; font-weight: 800; color: #f8fafc; }
     
-    .tabs { display: flex; background: #0f172a; border-t: 1px solid #334155; overflow-x: auto; }
+    .tabs { display: flex; background: #0f172a; border-top: 1px solid #334155; overflow-x: auto; }
     .tab-btn { flex: 1; min-width: 90px; padding: 10px; text-align: center; font-size: 11px; font-weight: 800; color: #94a3b8; border: none; background: none; border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; }
     .tab-btn.active { color: #38bdf8; border-bottom-color: #38bdf8; background: #1e293b; }
 
@@ -21,19 +21,20 @@
     .mode-pass { background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: #22c55e; }
     .mode-fail { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: #ef4444; }
     .mode-clear { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border-color: #64748b; }
-    .mode-btn.active { box-shadow: 0 0 10px currentColor; font-weight: 900; background-opacity: 0.4; }
+    .mode-btn.active { box-shadow: 0 0 10px currentColor; font-weight: 900; }
 
-    /* PAFTA VE NOKTA KATMANI */
-    .canvas-wrapper { flex: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding: 10px; }
-    .pafta-box { position: relative; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; }
+    .canvas-wrapper { flex: 1; overflow: auto; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 10px; position: relative; }
+    .pafta-box { position: relative; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-radius: 4px; }
     #pafta-img { display: block; max-width: 100%; width: auto; height: auto; user-select: none; -webkit-user-drag: none; }
     
-    /* DOKUNMATİK NOKTALAR */
+    .fallback-card { background: #1e293b; border: 2px dashed #475569; border-radius: 12px; padding: 20px; text-align: center; margin-top: 20px; max-width: 300px; }
+    .file-input-btn { display: inline-block; margin-top: 10px; background: #2563eb; color: #fff; padding: 8px 16px; border-radius: 6px; font-size: 11px; font-weight: 800; cursor: pointer; }
+
     .marker { position: absolute; width: 14px; height: 14px; border-radius: 50%; transform: translate(-50%, -50%); cursor: pointer; border: 2px solid #fff; box-shadow: 0 0 4px rgba(0,0,0,0.9); }
     .marker.PASSED { background-color: #22c55e; }
     .marker.FAILED { background-color: #ef4444; }
 
-    .footer-stats { display: flex; justify-content: space-around; background: #1e293b; padding: 10px; font-size: 11px; font-weight: 700; border-t: 1px solid #334155; }
+    .footer-stats { display: flex; justify-content: space-around; background: #1e293b; padding: 10px; font-size: 11px; font-weight: 700; border-top: 1px solid #334155; }
     .stat { display: flex; align-items: center; gap: 4px; }
     .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   </style>
@@ -56,17 +57,22 @@
     </div>
   </header>
 
-  <!-- İŞARET MODU SEÇİMİ -->
   <div class="mode-selector">
     <div onclick="setMode('PASSED')" id="m-pass" class="mode-btn mode-pass active">✅ GEÇTİ (YEŞİL)</div>
     <div onclick="setMode('FAILED')" id="m-fail" class="mode-btn mode-fail">❌ GEÇMEDİ (KIRMIZI)</div>
     <div onclick="setMode('CLEAR')" id="m-clear" class="mode-btn mode-clear">🧹 SİL</div>
   </div>
 
-  <!-- PAFTA VE DOKUNMA ALANI -->
   <div class="canvas-wrapper">
     <div id="pafta-container" class="pafta-box">
-      <img id="pafta-img" src="facade1.jpg" alt="Cephe Paftası" onclick="handleImageClick(event)">
+      <img id="pafta-img" src="./facade1.jpg" alt="Cephe Paftası" onclick="handleImageClick(event)" onerror="handleImageError()">
+    </div>
+    <div id="fallback-ui" class="fallback-card" style="display: none;">
+      <p style="font-size: 12px; color: #94a3b8;">Görsel GitHub'dan yüklenemedi. Telefonunuzdan pafta resmini seçerek doğrudan yükleyebilirsiniz:</p>
+      <label class="file-input-btn">
+        Resim Seç
+        <input type="file" accept="image/*" onchange="uploadImageManual(event)" style="display: none;">
+      </label>
     </div>
   </div>
 
@@ -81,13 +87,14 @@
     let currentMode = 'PASSED';
     
     const facadeImages = {
-      'F1': 'facade1.jpg',
-      'F2': 'facade2.jpg',
-      'F3': 'facade3.jpg',
-      'F4': 'facade4.jpg'
+      'F1': './facade1.jpg',
+      'F2': './facade2.jpg',
+      'F3': './facade3.jpg',
+      'F4': './facade4.jpg'
     };
 
     let allMarkers = JSON.parse(localStorage.getItem('pafta_multi_facade_db')) || { F1: [], F2: [], F3: [], F4: [] };
+    let customImages = JSON.parse(localStorage.getItem('pafta_custom_images')) || {};
 
     window.onload = () => {
       loadFacade();
@@ -98,9 +105,46 @@
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(`btn-${facadeId}`).classList.add('active');
       
-      const img = document.getElementById('pafta-img');
-      img.src = facadeImages[facadeId];
+      document.getElementById('fallback-ui').style.display = 'none';
+      document.getElementById('pafta-container').style.display = 'inline-block';
+      
       loadFacade();
+    }
+
+    function loadFacade() {
+      const img = document.getElementById('pafta-img');
+      if (customImages[currentFacade]) {
+        img.src = customImages[currentFacade];
+      } else {
+        img.src = facadeImages[currentFacade];
+      }
+      
+      img.onload = () => {
+        document.getElementById('fallback-ui').style.display = 'none';
+        document.getElementById('pafta-container').style.display = 'inline-block';
+        renderMarkers();
+      };
+      if (img.complete && img.naturalWidth !== 0) renderMarkers();
+    }
+
+    function handleImageError() {
+      if (!customImages[currentFacade]) {
+        document.getElementById('pafta-container').style.display = 'none';
+        document.getElementById('fallback-ui').style.display = 'block';
+      }
+    }
+
+    function uploadImageManual(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          customImages[currentFacade] = e.target.result;
+          localStorage.setItem('pafta_custom_images', JSON.stringify(customImages));
+          loadFacade();
+        };
+        reader.readAsDataURL(file);
+      }
     }
 
     function setMode(mode) {
@@ -137,19 +181,12 @@
       saveAndRender();
     }
 
-    function loadFacade() {
-      const img = document.getElementById('pafta-img');
-      img.onload = () => renderMarkers();
-      if (img.complete) renderMarkers();
-    }
-
     function renderMarkers() {
       const container = document.getElementById('pafta-container');
       document.querySelectorAll('.marker').forEach(m => m.remove());
 
       let passCnt = 0;
       let failCnt = 0;
-
       const currentList = allMarkers[currentFacade] || [];
 
       currentList.forEach(m => {
